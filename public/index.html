@@ -246,7 +246,7 @@
     // Fetch data from Notion serverless function
     async function loadData() {
       try {
-        const res = await fetch('/.netlify/functions/notion?section=all');
+        const res = await fetch('/api/notion');
         const data = await res.json();
         renderRituals(data.rituals || []);
         renderAdventures(data.adventures || []);

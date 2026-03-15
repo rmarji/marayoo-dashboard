@@ -2,7 +2,7 @@
   "name": "marayoo-dashboard",
   "version": "1.0.0",
   "scripts": {
-    "dev": "npx serve public",
-    "build": "echo 'static site'"
+    "start": "node server.js",
+    "dev": "node server.js"
   }
 }
