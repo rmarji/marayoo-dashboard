@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marayoo0S</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr 1fr;
+      gap: 20px;
+      padding: 30px;
+      height: 100vh;
+    }
+
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff6b9d, #c4b5fd, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header .subtitle {
+      color: #8b949e;
+      font-size: 1.2rem;
+    }
+
+    .header .time {
+      color: #c4b5fd;
+      font-size: 1.5rem;
+      font-weight: 300;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .card::-webkit-scrollbar { display: none; }
+
+    .card h2 {
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card.rituals h2 { color: #fbbf24; }
+    .card.adventure h2 { color: #f472b6; }
+    .card.checkin h2 { color: #34d399; }
+    .card.desires h2 { color: #c4b5fd; }
+
+    .ritual-group h3 {
+      color: #58a6ff;
+      font-size: 1rem;
+      margin: 14px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .ritual-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      font-size: 1.1rem;
+    }
+
+    .ritual-item .check {
+      width: 22px;
+      height: 22px;
+      border: 2px solid #30363d;
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ritual-item.checked .check {
+      background: #34d399;
+      border-color: #34d399;
+    }
+
+    .ritual-item.checked .check::after {
+      content: '✓';
+      color: #0d1117;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .ritual-item.checked .label {
+      color: #8b949e;
+      text-decoration: line-through;
+    }
+
+    .adventure-card {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+
+    .adventure-card .title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #34d399;
+      margin-bottom: 6px;
+    }
+
+    .adventure-card .desc {
+      color: #c4b5fd;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .adventure-card .date {
+      color: #fbbf24;
+      font-size: 1rem;
+    }
+
+    .adventure-card .location {
+      color: #8b949e;
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .adventure-card .highlight {
+      color: #f472b6;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-top: 8px;
+    }
+
+    .detail-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #21262d;
+      font-size: 1.05rem;
+      color: #e6edf3;
+    }
+
+    .detail-item:last-child { border-bottom: none; }
+
+    .pulse {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #34d399;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .loading {
+      color: #8b949e;
+      font-style: italic;
+    }
+
+    .footer {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: #30363d;
+      font-size: 0.8rem;
+      padding-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>🍑 Marayoo0S</h1>
+        <div class="subtitle">Raed & Maria</div>
+      </div>
+      <div class="time" id="clock"></div>
+    </div>
+
+    <div class="card rituals" id="rituals-card">
+      <h2>🔁 Rituals</h2>
+      <div id="rituals" class="loading">Loading...</div>
+    </div>
+
+    <div class="card adventure" id="adventure-card">
+      <h2>🗺️ Adventures</h2>
+      <div id="adventures" class="loading">Loading...</div>
+    </div>
+
+    <div class="card checkin" id="checkin-card">
+      <h2>🗓️ Check-ins</h2>
+      <div id="checkins" class="loading">Loading...</div>
+    </div>
+
+    <div class="card desires" id="desires-card">
+      <h2>💫 Quick View</h2>
+      <div id="quickview">
+        <div class="detail-item"><span class="pulse"></span>Dashboard is live</div>
+        <div class="detail-item">📍 Medellín, Colombia</div>
+        <div class="detail-item" id="weather-info">🌤️ Loading weather...</div>
+        <div class="detail-item" id="next-event"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      const opts = { hour: '2-digit', minute: '2-digit', weekday: 'long', month: 'short', day: 'numeric' };
+      document.getElementById('clock').textContent = now.toLocaleDateString('en-US', opts) + ' ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+
+    // Fetch data from Notion serverless function
+    async function loadData() {
+      try {
+        const res = await fetch('/.netlify/functions/notion?section=all');
+        const data = await res.json();
+        renderRituals(data.rituals || []);
+        renderAdventures(data.adventures || []);
+        renderCheckins(data.checkins || []);
+      } catch (e) {
+        console.error('Failed to load:', e);
+      }
+    }
+
+    function renderRituals(blocks) {
+      const container = document.getElementById('rituals');
+      let html = '';
+      let currentGroup = '';
+
+      for (const block of blocks) {
+        if (block.type === 'heading_3') {
+          html += `<div class="ritual-group"><h3>${block.text}</h3></div>`;
+        } else if (block.type === 'to_do') {
+          const checked = block.checked ? 'checked' : '';
+          html += `<div class="ritual-item ${checked}"><div class="check"></div><span class="label">${block.text}</span></div>`;
+        } else if (block.type === 'callout') {
+          html += `<div style="color: #c4b5fd; font-style: italic; margin-bottom: 12px; font-size: 0.95rem;">${block.text}</div>`;
+        }
+      }
+      container.innerHTML = html || '<div class="loading">No rituals found</div>';
+    }
+
+    function renderAdventures(blocks) {
+      const container = document.getElementById('adventures');
+      let html = '';
+      let inCard = false;
+
+      for (const block of blocks) {
+        if (block.type === 'heading_2') {
+          if (inCard) html += '</div>';
+          html += `<div class="adventure-card"><div class="title">${block.text}</div>`;
+          inCard = true;
+        } else if (block.type === 'callout' && inCard) {
+          html += `<div class="desc">${block.text}</div>`;
+        } else if (block.type === 'paragraph' && inCard) {
+          if (block.text.includes('DJing') || block.text.includes('✨')) {
+            html += `<div class="highlight">${block.text}</div>`;
+          } else if (block.text.includes('📅')) {
+            html += `<div class="date">${block.text}</div>`;
+          } else {
+            html += `<div class="location">${block.text}</div>`;
+          }
+        } else if (block.type === 'bulleted_list_item' && inCard) {
+          html += `<div class="detail-item">• ${block.text}</div>`;
+        } else if (block.type === 'heading_3') {
+          html += `<div style="color: #58a6ff; margin: 10px 0 6px; font-weight: 600;">${block.text}</div>`;
+        } else if (block.type === 'bulleted_list_item' && !inCard) {
+          html += `<div class="detail-item">📍 ${block.text}</div>`;
+        }
+      }
+      if (inCard) html += '</div>';
+      container.innerHTML = html || '<div class="loading">No adventures yet</div>';
+    }
+
+    function renderCheckins(blocks) {
+      const container = document.getElementById('checkins');
+      let html = '';
+      for (const block of blocks) {
+        if (block.type === 'callout') {
+          html += `<div style="color: #34d399; font-style: italic; margin-bottom: 12px;">${block.text}</div>`;
+        } else if (block.type === 'heading_3') {
+          html += `<div style="color: #58a6ff; margin: 12px 0 6px; font-weight: 600;">${block.text}</div>`;
+        } else if (block.type === 'bulleted_list_item') {
+          html += `<div class="detail-item">📝 ${block.text}</div>`;
+        } else if (block.type === 'toggle') {
+          html += `<div class="detail-item" style="color: #c4b5fd;">▸ ${block.text}</div>`;
+        }
+      }
+      container.innerHTML = html || '<div class="loading">No check-ins yet</div>';
+    }
+
+    // Load and auto-refresh
+    loadData();
+    setInterval(loadData, 5 * 60 * 1000); // Refresh every 5 minutes
+  </script>
+</body>
+</html>
