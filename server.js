@@ -19,11 +19,26 @@ async function fetchBlocks(pageId) {
 }
 
 function extractText(block) {
-  const content = block[block.type];
-  if (!content) return '';
-  if (content.rich_text) return content.rich_text.map(t => t.plain_text).join('');
-  if (content.title) return content.title.map(t => t.plain_text).join('');
-  return '';
+  try {
+    const content = block[block.type];
+    if (!content) return '';
+    // rich_text: array of text objects (standard Notion blocks)
+    if (Array.isArray(content.rich_text)) {
+      return content.rich_text.map(t => t.plain_text).join('');
+    }
+    // title: can be array (database title) or string (child_page)
+    if (content.title !== undefined) {
+      if (Array.isArray(content.title)) {
+        return content.title.map(t => t.plain_text).join('');
+      }
+      if (typeof content.title === 'string') {
+        return content.title;
+      }
+    }
+    return '';
+  } catch {
+    return '';
+  }
 }
 
 async function handleAPI(res) {
