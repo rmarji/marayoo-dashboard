@@ -274,6 +274,28 @@
       50%       { transform: scale(1.25); }
     }
 
+    /* ─── Crypto Ticker ─────────────────────────────────────────── */
+    .ticker {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      background: rgba(22, 27, 34, 0.7);
+      border: 1px solid #21262d;
+      border-radius: 12px;
+      padding: 10px 20px;
+    }
+    .ticker-coin {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+    .ticker-coin .sym { color: #c4b5fd; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.5px; }
+    .ticker-coin .price { color: #e6edf3; font-weight: 600; }
+    .ticker-spacer { flex: 1; }
+    .ticker-label { color: #30363d; font-size: 0.72rem; }
+
     /* ─── Footer ────────────────────────────────────────────────── */
     .footer {
       grid-column: 1 / -1;
@@ -373,6 +395,21 @@
         <div class="panel"        id="love-panel-2"></div>
       </div>
       <div class="panel-dots" id="love-dots"></div>
+    </div>
+
+    <!-- Crypto Ticker -->
+    <div class="ticker" id="ticker-bar">
+      <div class="ticker-coin">
+        <span class="sym">BTC</span><span class="price" id="price-BTC">—</span>
+      </div>
+      <div class="ticker-coin">
+        <span class="sym">ETH</span><span class="price" id="price-ETH">—</span>
+      </div>
+      <div class="ticker-coin">
+        <span class="sym">SOL</span><span class="price" id="price-SOL">—</span>
+      </div>
+      <div class="ticker-spacer"></div>
+      <span class="ticker-label" id="ticker-updated">—</span>
     </div>
 
     <!-- Footer -->
@@ -668,8 +705,27 @@
     setupRotator('rituals', ['rituals-panel-0', 'rituals-panel-1'], 20000);   // rotate AM/PM every 20s
     setupRotator('love',    ['love-panel-0', 'love-panel-1', 'love-panel-2'], 15000); // love notes every 15s
 
+    /* ═══ CRYPTO PRICES ══════════════════════════════════════════ */
+    async function loadPrices() {
+      try {
+        const res = await fetch('/api/prices');
+        const coins = await res.json();
+        if (!Array.isArray(coins)) return;
+        for (const { symbol, price } of coins) {
+          const el = document.getElementById(`price-${symbol}`);
+          if (el) el.textContent = '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        document.getElementById('ticker-updated').textContent =
+          'crypto · ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      } catch (e) {
+        console.warn('Price fetch failed:', e.message);
+      }
+    }
+
     loadData();
+    loadPrices();
     setInterval(loadData, 5 * 60 * 1000);
+    setInterval(loadPrices, 60 * 1000); // prices refresh every 60s
   </script>
 </body>
 </html>

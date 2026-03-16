@@ -41,6 +41,22 @@ function extractText(block) {
   }
 }
 
+async function handlePrices(res) {
+  const symbols = ['BTC', 'ETH', 'SOL'];
+  try {
+    const prices = await Promise.all(symbols.map(async (sym) => {
+      const r = await fetch(`https://api.coinbase.com/v2/prices/${sym}-USD/spot`);
+      const j = await r.json();
+      return { symbol: sym, price: parseFloat(j.data?.amount || 0) };
+    }));
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.end(JSON.stringify(prices));
+  } catch (err) {
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: err.message }));
+  }
+}
+
 async function handleAPI(res) {
   try {
     const data = {};
@@ -69,6 +85,9 @@ const MIME = {
 const server = http.createServer(async (req, res) => {
   if (req.url === '/api/notion') {
     return handleAPI(res);
+  }
+  if (req.url === '/api/prices') {
+    return handlePrices(res);
   }
 
   let filePath = path.join(__dirname, 'public', req.url === '/' ? 'index.html' : req.url);
