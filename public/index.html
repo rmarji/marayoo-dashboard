@@ -295,6 +295,16 @@
     .ticker-coin .price { color: #e6edf3; font-weight: 600; }
     .ticker-spacer { flex: 1; }
     .ticker-label { color: #30363d; font-size: 0.72rem; }
+    .ticker-divider { width: 1px; height: 24px; background: #21262d; }
+    /* weather section in ticker */
+    .ticker-weather { display: flex; align-items: center; gap: 14px; }
+    .ticker-weather .w-main { display: flex; align-items: center; gap: 6px; }
+    .ticker-weather .w-temp { font-size: 1.05rem; font-weight: 700; color: #fbbf24; }
+    .ticker-weather .w-desc { color: #8b949e; font-size: 0.82rem; }
+    .ticker-weather .w-detail { color: #30363d; font-size: 0.75rem; }
+    .ticker-weather .w-forecast { display: flex; gap: 10px; }
+    .ticker-weather .w-day { text-align: center; font-size: 0.75rem; color: #8b949e; }
+    .ticker-weather .w-day .w-day-temp { color: #c4b5fd; font-weight: 600; font-size: 0.8rem; }
 
     /* ─── Footer ────────────────────────────────────────────────── */
     .footer {
@@ -397,8 +407,9 @@
       <div class="panel-dots" id="love-dots"></div>
     </div>
 
-    <!-- Crypto Ticker -->
+    <!-- Crypto Ticker + Weather -->
     <div class="ticker" id="ticker-bar">
+      <!-- Crypto prices -->
       <div class="ticker-coin">
         <span class="sym">BTC</span><span class="price" id="price-BTC">—</span>
       </div>
@@ -409,6 +420,18 @@
         <span class="sym">SOL</span><span class="price" id="price-SOL">—</span>
       </div>
       <div class="ticker-spacer"></div>
+      <!-- Weather: Medellín -->
+      <div class="ticker-divider"></div>
+      <div class="ticker-weather" id="weather-widget">
+        <div class="w-main">
+          <span id="weather-icon">🌤️</span>
+          <span class="w-temp" id="weather-temp">—</span>
+          <span class="w-desc" id="weather-desc">Medellín</span>
+        </div>
+        <div class="w-detail" id="weather-detail">—</div>
+        <div class="w-forecast" id="weather-forecast"></div>
+      </div>
+      <div class="ticker-divider"></div>
       <span class="ticker-label" id="ticker-updated">—</span>
     </div>
 
@@ -722,10 +745,62 @@
       }
     }
 
+    /* ═══ WEATHER ════════════════════════════════════════════════ */
+    const WEATHER_ICONS = {
+      'Sunny': '☀️', 'Clear': '🌙', 'Partly cloudy': '🌤️', 'Cloudy': '☁️',
+      'Overcast': '☁️', 'Mist': '🌫️', 'Fog': '🌫️', 'Freezing fog': '🌫️',
+      'Patchy rain possible': '🌦️', 'Patchy snow possible': '🌨️',
+      'Blowing snow': '❄️', 'Blizzard': '❄️', 'Thundery outbreaks possible': '⛈️',
+      'Light rain': '🌧️', 'Moderate rain': '🌧️', 'Heavy rain': '🌧️',
+      'Light snow': '🌨️', 'Moderate snow': '🌨️', 'Heavy snow': '❄️',
+      'Light sleet': '🌨️', 'Moderate sleet': '🌨️', 'Ice pellets': '🌨️',
+      'Thunderstorm': '⛈️', 'Light drizzle': '🌦️', 'Freezing drizzle': '🌦️',
+    };
+
+    function getWeatherIcon(desc) {
+      for (const [key, emoji] of Object.entries(WEATHER_ICONS)) {
+        if (desc.toLowerCase().includes(key.toLowerCase())) return emoji;
+      }
+      return '🌤️';
+    }
+
+    const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    async function loadWeather() {
+      try {
+        const res = await fetch('/api/weather');
+        const w = await res.json();
+        if (w.error) return;
+
+        document.getElementById('weather-icon').textContent = getWeatherIcon(w.desc);
+        document.getElementById('weather-temp').textContent = `${w.tempC}°C`;
+        document.getElementById('weather-desc').textContent = w.desc;
+        document.getElementById('weather-detail').textContent =
+          `💧${w.humidity}% · 🌬️${w.windKmph}km/h · UV ${w.uvIndex}`;
+
+        // 3-day forecast
+        const forecastEl = document.getElementById('weather-forecast');
+        if (w.forecast && w.forecast.length) {
+          forecastEl.innerHTML = w.forecast.map(day => {
+            const d = new Date(day.date);
+            return `<div class="w-day">
+              <div>${DAY_NAMES[d.getDay()]}</div>
+              <div>${getWeatherIcon(day.desc)}</div>
+              <div class="w-day-temp">${day.maxC}°/${day.minC}°</div>
+            </div>`;
+          }).join('');
+        }
+      } catch (e) {
+        console.warn('Weather fetch failed:', e.message);
+      }
+    }
+
     loadData();
     loadPrices();
+    loadWeather();
     setInterval(loadData, 5 * 60 * 1000);
     setInterval(loadPrices, 60 * 1000); // prices refresh every 60s
+    setInterval(loadWeather, 30 * 60 * 1000); // weather refreshes every 30min
   </script>
 </body>
 </html>

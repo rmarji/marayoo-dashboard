@@ -41,6 +41,34 @@ function extractText(block) {
   }
 }
 
+async function handleWeather(res) {
+  try {
+    const r = await fetch('https://wttr.in/Medellin?format=j1');
+    const d = await r.json();
+    const c = d.current_condition[0];
+    const forecast = d.weather.slice(0, 3).map(day => ({
+      date: day.date,
+      maxC: day.maxtempC,
+      minC: day.mintempC,
+      desc: day.hourly[4]?.weatherDesc?.[0]?.value || '',
+    }));
+    const weather = {
+      desc: c.weatherDesc[0].value,
+      tempC: c.temp_C,
+      feelsC: c.FeelsLikeC,
+      humidity: c.humidity,
+      windKmph: c.windspeedKmph,
+      uvIndex: c.uvIndex,
+      forecast,
+    };
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.end(JSON.stringify(weather));
+  } catch (err) {
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: err.message }));
+  }
+}
+
 async function handlePrices(res) {
   const symbols = ['BTC', 'ETH', 'SOL'];
   try {
@@ -88,6 +116,9 @@ const server = http.createServer(async (req, res) => {
   }
   if (req.url === '/api/prices') {
     return handlePrices(res);
+  }
+  if (req.url === '/api/weather') {
+    return handleWeather(res);
   }
 
   let filePath = path.join(__dirname, 'public', req.url === '/' ? 'index.html' : req.url);
