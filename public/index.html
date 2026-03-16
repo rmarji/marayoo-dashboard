@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Marayoo0S</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -17,15 +17,27 @@
       overflow: hidden;
     }
 
+    /* ─── Animated background ─────────────────────────────────── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ─── Layout ────────────────────────────────────────────────── */
     .container {
+      position: relative;
+      z-index: 1;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto 1fr 1fr;
-      gap: 20px;
-      padding: 30px;
+      grid-template-rows: auto 1fr 1fr auto;
+      gap: 18px;
+      padding: 28px 32px;
       height: 100vh;
     }
 
+    /* ─── Header ────────────────────────────────────────────────── */
     .header {
       grid-column: 1 / -1;
       display: flex;
@@ -34,52 +46,117 @@
     }
 
     .header h1 {
-      font-size: 3rem;
-      font-weight: 700;
+      font-size: 2.8rem;
+      font-weight: 800;
       background: linear-gradient(135deg, #ff6b9d, #c4b5fd, #34d399);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      animation: gradientShift 8s ease infinite;
+      background-size: 200% 200%;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0%   50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0%   50%; }
     }
 
     .header .subtitle {
       color: #8b949e;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
+      margin-top: 2px;
     }
 
     .header .time {
+      text-align: right;
+    }
+
+    .header .clock-big {
       color: #c4b5fd;
-      font-size: 1.5rem;
+      font-size: 2.6rem;
       font-weight: 300;
+      letter-spacing: 2px;
     }
 
+    .header .clock-date {
+      color: #8b949e;
+      font-size: 1rem;
+      text-align: right;
+    }
+
+    /* ─── Cards ─────────────────────────────────────────────────── */
     .card {
-      background: #161b22;
+      background: rgba(22, 27, 34, 0.82);
+      backdrop-filter: blur(12px);
       border: 1px solid #30363d;
-      border-radius: 16px;
-      padding: 24px;
-      overflow-y: auto;
+      border-radius: 20px;
+      padding: 22px 24px;
+      overflow: hidden;
+      transition: border-color 0.4s;
+      position: relative;
     }
 
-    .card::-webkit-scrollbar { display: none; }
+    .card:hover {
+      border-color: #58a6ff44;
+    }
 
     .card h2 {
-      font-size: 1.4rem;
-      margin-bottom: 16px;
+      font-size: 1.3rem;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .card.rituals h2 { color: #fbbf24; }
+    .card.rituals  h2 { color: #fbbf24; }
     .card.adventure h2 { color: #f472b6; }
-    .card.checkin h2 { color: #34d399; }
-    .card.desires h2 { color: #c4b5fd; }
+    .card.checkin  h2 { color: #34d399; }
+    .card.love     h2 { color: #fb7185; }
 
+    /* Rotating panels */
+    .panel-wrapper {
+      position: relative;
+      overflow: hidden;
+      height: calc(100% - 44px);
+    }
+
+    .panel {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+      overflow-y: auto;
+    }
+
+    .panel::-webkit-scrollbar { display: none; }
+
+    .panel.active { opacity: 1; }
+
+    .panel-dots {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      display: flex;
+      gap: 5px;
+      padding: 4px;
+    }
+
+    .panel-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #30363d;
+      transition: background 0.3s;
+    }
+
+    .panel-dot.active { background: #58a6ff; }
+
+    /* ─── Rituals ───────────────────────────────────────────────── */
     .ritual-group h3 {
       color: #58a6ff;
-      font-size: 1rem;
-      margin: 14px 0 8px;
+      font-size: 0.9rem;
+      margin: 12px 0 6px;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
@@ -88,15 +165,15 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 8px 0;
-      font-size: 1.1rem;
+      padding: 7px 0;
+      font-size: 1.05rem;
     }
 
     .ritual-item .check {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       border: 2px solid #30363d;
-      border-radius: 6px;
+      border-radius: 5px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -112,7 +189,7 @@
       content: '✓';
       color: #0d1117;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .ritual-item.checked .label {
@@ -120,54 +197,95 @@
       text-decoration: line-through;
     }
 
+    /* ─── Adventures ────────────────────────────────────────────── */
     .adventure-card {
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      background: linear-gradient(135deg, rgba(26,26,46,0.7), rgba(22,33,62,0.7));
       border: 1px solid #30363d;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 12px;
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 10px;
     }
 
     .adventure-card .title {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 600;
       color: #34d399;
-      margin-bottom: 6px;
-    }
-
-    .adventure-card .desc {
-      color: #c4b5fd;
-      font-size: 1rem;
       margin-bottom: 4px;
     }
 
-    .adventure-card .date {
-      color: #fbbf24;
-      font-size: 1rem;
-    }
+    .adventure-card .desc { color: #c4b5fd; font-size: 0.95rem; margin-bottom: 4px; }
+    .adventure-card .date { color: #fbbf24; font-size: 0.9rem; }
+    .adventure-card .location { color: #8b949e; font-size: 0.85rem; margin-top: 4px; }
+    .adventure-card .highlight { color: #f472b6; font-weight: 600; font-size: 1rem; margin-top: 8px; }
 
-    .adventure-card .location {
-      color: #8b949e;
-      font-size: 0.9rem;
-      margin-top: 4px;
-    }
-
-    .adventure-card .highlight {
-      color: #f472b6;
-      font-weight: 600;
-      font-size: 1.1rem;
-      margin-top: 8px;
-    }
-
+    /* ─── Detail items ───────────────────────────────────────────── */
     .detail-item {
       padding: 8px 0;
       border-bottom: 1px solid #21262d;
-      font-size: 1.05rem;
+      font-size: 1rem;
       color: #e6edf3;
     }
 
     .detail-item:last-child { border-bottom: none; }
 
+    /* ─── Love Notes ────────────────────────────────────────────── */
+    .love-note {
+      position: relative;
+      background: linear-gradient(135deg, rgba(251,113,133,0.12), rgba(196,181,253,0.10));
+      border: 1px solid rgba(251,113,133,0.25);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 10px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .love-note:nth-child(2) { animation-delay: -2s; }
+    .love-note:nth-child(3) { animation-delay: -4s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-4px); }
+    }
+
+    .love-note .note-text {
+      font-size: 1.1rem;
+      color: #fce7f3;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    .love-note .note-author {
+      text-align: right;
+      margin-top: 10px;
+      color: #fb7185;
+      font-size: 0.9rem;
+    }
+
+    .love-note .hearts {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      font-size: 1.2rem;
+      animation: heartbeat 2s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.25); }
+    }
+
+    /* ─── Footer ────────────────────────────────────────────────── */
+    .footer {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #30363d;
+      font-size: 0.78rem;
+      padding: 2px 0;
+    }
+
+    /* ─── Pulse dot ──────────────────────────────────────────────── */
     .pulse {
       display: inline-block;
       width: 8px;
@@ -175,75 +293,290 @@
       background: #34d399;
       border-radius: 50%;
       margin-right: 8px;
-      animation: pulse 2s infinite;
+      animation: pulseDot 2s infinite;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(52,211,153,0.5); }
+      50%       { opacity: 0.7; box-shadow: 0 0 0 5px rgba(52,211,153,0); }
     }
 
-    .loading {
-      color: #8b949e;
-      font-style: italic;
+    /* ─── Floating particles ────────────────────────────────────── */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      animation: particleRise linear infinite;
+      z-index: 0;
     }
 
-    .footer {
-      grid-column: 1 / -1;
-      text-align: center;
-      color: #30363d;
-      font-size: 0.8rem;
-      padding-top: 0;
+    @keyframes particleRise {
+      0%   { opacity: 0;   transform: translateY(0)   scale(0); }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.3; }
+      100% { opacity: 0;   transform: translateY(-100vh) scale(1.5); }
     }
+
+    .loading { color: #8b949e; font-style: italic; }
   </style>
 </head>
 <body>
+  <!-- Animated background canvas -->
+  <canvas id="bg-canvas"></canvas>
+
   <div class="container">
+    <!-- Header -->
     <div class="header">
       <div>
         <h1>🍑 Marayoo0S</h1>
-        <div class="subtitle">Raed & Maria</div>
+        <div class="subtitle">Raed &amp; Maria · Medellín 🇨🇴</div>
       </div>
-      <div class="time" id="clock"></div>
+      <div class="time">
+        <div class="clock-big" id="clock-time"></div>
+        <div class="clock-date" id="clock-date"></div>
+      </div>
     </div>
 
-    <div class="card rituals" id="rituals-card">
+    <!-- Rituals (rotating: AM + PM panels) -->
+    <div class="card rituals">
       <h2>🔁 Rituals</h2>
-      <div id="rituals" class="loading">Loading...</div>
-    </div>
-
-    <div class="card adventure" id="adventure-card">
-      <h2>🗺️ Adventures</h2>
-      <div id="adventures" class="loading">Loading...</div>
-    </div>
-
-    <div class="card checkin" id="checkin-card">
-      <h2>🗓️ Check-ins</h2>
-      <div id="checkins" class="loading">Loading...</div>
-    </div>
-
-    <div class="card desires" id="desires-card">
-      <h2>💫 Quick View</h2>
-      <div id="quickview">
-        <div class="detail-item"><span class="pulse"></span>Dashboard is live</div>
-        <div class="detail-item">📍 Medellín, Colombia</div>
-        <div class="detail-item" id="weather-info">🌤️ Loading weather...</div>
-        <div class="detail-item" id="next-event"></div>
+      <div class="panel-wrapper" id="rituals-wrapper">
+        <div class="panel active" id="rituals-panel-0"><div class="loading">Loading...</div></div>
+        <div class="panel"        id="rituals-panel-1"></div>
       </div>
+      <div class="panel-dots" id="rituals-dots"></div>
+    </div>
+
+    <!-- Adventures -->
+    <div class="card adventure">
+      <h2>🗺️ Adventures</h2>
+      <div class="panel-wrapper" id="adventures-wrapper">
+        <div class="panel active" id="adventures-panel-0"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- Check-ins -->
+    <div class="card checkin">
+      <h2>🗓️ Check-ins</h2>
+      <div class="panel-wrapper" id="checkins-wrapper">
+        <div class="panel active" id="checkins-panel-0"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- Love Notes (rotating) -->
+    <div class="card love">
+      <h2>💌 Love Notes</h2>
+      <div class="panel-wrapper" id="love-wrapper">
+        <div class="panel active" id="love-panel-0"></div>
+        <div class="panel"        id="love-panel-1"></div>
+        <div class="panel"        id="love-panel-2"></div>
+      </div>
+      <div class="panel-dots" id="love-dots"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span><span class="pulse"></span>Live · refreshes every 5 min</span>
+      <span id="last-updated">—</span>
     </div>
   </div>
 
   <script>
-    // Clock
+    /* ═══ CLOCK ══════════════════════════════════════════════════ */
     function updateClock() {
       const now = new Date();
-      const opts = { hour: '2-digit', minute: '2-digit', weekday: 'long', month: 'short', day: 'numeric' };
-      document.getElementById('clock').textContent = now.toLocaleDateString('en-US', opts) + ' ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('clock-time').textContent =
+        now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      document.getElementById('clock-date').textContent =
+        now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     }
     updateClock();
-    setInterval(updateClock, 30000);
+    setInterval(updateClock, 10000);
 
-    // Fetch data from Notion serverless function
+    /* ═══ ANIMATED BACKGROUND ════════════════════════════════════ */
+    (function() {
+      const canvas = document.getElementById('bg-canvas');
+      const ctx = canvas.getContext('2d');
+      let W, H;
+
+      function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Nebula blobs
+      const blobs = [
+        { x: 0.15, y: 0.30, r: 0.35, color: 'rgba(255,107,157,0.06)', dx: 0.00008, dy: 0.00005 },
+        { x: 0.80, y: 0.20, r: 0.30, color: 'rgba(196,181,253,0.07)', dx:-0.00006, dy: 0.00007 },
+        { x: 0.50, y: 0.75, r: 0.40, color: 'rgba(52,211,153,0.05)',  dx: 0.00005, dy:-0.00006 },
+        { x: 0.70, y: 0.60, r: 0.25, color: 'rgba(251,191,36,0.04)',  dx:-0.00009, dy:-0.00004 },
+      ];
+
+      let t = 0;
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Dark base
+        ctx.fillStyle = '#0d1117';
+        ctx.fillRect(0, 0, W, H);
+
+        // Moving blobs
+        for (const b of blobs) {
+          b.x += b.dx;
+          b.y += b.dy;
+          if (b.x < 0 || b.x > 1) b.dx *= -1;
+          if (b.y < 0 || b.y > 1) b.dy *= -1;
+
+          const grad = ctx.createRadialGradient(
+            b.x * W, b.y * H, 0,
+            b.x * W, b.y * H, b.r * Math.min(W, H)
+          );
+          grad.addColorStop(0, b.color);
+          grad.addColorStop(1, 'transparent');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, W, H);
+        }
+
+        // Subtle star field
+        if (t % 300 === 0) {
+          // repaint stars occasionally — static draw once on resize instead
+        }
+
+        t++;
+        requestAnimationFrame(draw);
+      }
+
+      // Draw static stars once
+      function drawStars() {
+        ctx.save();
+        for (let i = 0; i < 120; i++) {
+          const sx = Math.random() * W;
+          const sy = Math.random() * H;
+          const sr = Math.random() * 1.2;
+          ctx.beginPath();
+          ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.3 + 0.05})`;
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // Floating hearts/particles
+      function spawnParticle() {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const emojis = ['✨', '💫', '🌸', '💜', '🩷'];
+        const useEmoji = Math.random() > 0.5;
+
+        if (useEmoji) {
+          p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          p.style.fontSize = (10 + Math.random() * 14) + 'px';
+          p.style.background = 'transparent';
+          p.style.borderRadius = '0';
+        } else {
+          const size = 3 + Math.random() * 5;
+          p.style.width = size + 'px';
+          p.style.height = size + 'px';
+          const colors = ['rgba(255,107,157,0.7)', 'rgba(196,181,253,0.7)', 'rgba(52,211,153,0.5)'];
+          p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        p.style.left  = (10 + Math.random() * 80) + 'vw';
+        p.style.bottom = '-20px';
+        const dur = 8 + Math.random() * 12;
+        p.style.animationDuration = dur + 's';
+        p.style.animationDelay = (Math.random() * 4) + 's';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), (dur + 5) * 1000);
+      }
+
+      draw();
+      drawStars();
+
+      // Spawn a particle every few seconds
+      setInterval(spawnParticle, 3000);
+    })();
+
+    /* ═══ ROTATING PANELS ════════════════════════════════════════ */
+    const rotators = {};
+
+    function setupRotator(key, panelIds, intervalMs) {
+      let current = 0;
+      const panels = panelIds.map(id => document.getElementById(id));
+      const dotsEl = document.getElementById(key + '-dots');
+
+      if (dotsEl && panels.length > 1) {
+        dotsEl.innerHTML = panels.map((_, i) =>
+          `<div class="panel-dot ${i === 0 ? 'active' : ''}" id="${key}-dot-${i}"></div>`
+        ).join('');
+      }
+
+      function show(idx) {
+        panels.forEach((p, i) => p.classList.toggle('active', i === idx));
+        if (dotsEl) {
+          dotsEl.querySelectorAll('.panel-dot').forEach((d, i) =>
+            d.classList.toggle('active', i === idx)
+          );
+        }
+        current = idx;
+      }
+
+      if (panels.length > 1) {
+        setInterval(() => show((current + 1) % panels.length), intervalMs);
+      }
+
+      rotators[key] = { show, panels };
+    }
+
+    /* ═══ LOVE NOTES ════════════════════════════════════════════ */
+    const LOVE_NOTES = [
+      {
+        text: "Every adventure starts with a yes. Thanks for saying yes to all of ours. 🌎",
+        author: "— R ❤️ M"
+      },
+      {
+        text: "You make Medellín feel like magic. And anywhere feels like home when you're there.",
+        author: "— always, Raed 🍑"
+      },
+      {
+        text: "From cacao ceremonies to building the future together — this is the best life.",
+        author: "— R + M forever 💫"
+      },
+      {
+        text: "Grateful for sauna mornings, late-night ideas, and everything in between.",
+        author: "— R 🌸"
+      },
+      {
+        text: "Two builders, one adventure. Let's keep shipping beautiful things.",
+        author: "— Marayoo0S ✨"
+      },
+      {
+        text: "The Four Agreements: be impeccable, don't assume, don't take it personally, always do your best. Living it.",
+        author: "— our shared code 💜"
+      },
+    ];
+
+    function renderLoveNotes() {
+      // 3 panels, 2 notes each
+      const notesPerPanel = 2;
+      for (let p = 0; p < 3; p++) {
+        const panel = document.getElementById(`love-panel-${p}`);
+        if (!panel) continue;
+        const slice = LOVE_NOTES.slice(p * notesPerPanel, p * notesPerPanel + notesPerPanel);
+        panel.innerHTML = slice.map(n => `
+          <div class="love-note">
+            <div class="hearts">💖</div>
+            <div class="note-text">"${n.text}"</div>
+            <div class="note-author">${n.author}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    /* ═══ NOTION DATA ════════════════════════════════════════════ */
     async function loadData() {
       try {
         const res = await fetch('/api/notion');
@@ -251,34 +584,43 @@
         renderRituals(data.rituals || []);
         renderAdventures(data.adventures || []);
         renderCheckins(data.checkins || []);
+        document.getElementById('last-updated').textContent =
+          'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
       } catch (e) {
         console.error('Failed to load:', e);
       }
     }
 
     function renderRituals(blocks) {
-      const container = document.getElementById('rituals');
-      let html = '';
-      let currentGroup = '';
+      // Split into AM (before a divider or ≤ half) and PM
+      const mid = Math.ceil(blocks.length / 2);
+      const panels = [blocks.slice(0, mid), blocks.slice(mid)];
 
-      for (const block of blocks) {
-        if (block.type === 'heading_3') {
-          html += `<div class="ritual-group"><h3>${block.text}</h3></div>`;
-        } else if (block.type === 'to_do') {
-          const checked = block.checked ? 'checked' : '';
-          html += `<div class="ritual-item ${checked}"><div class="check"></div><span class="label">${block.text}</span></div>`;
-        } else if (block.type === 'callout') {
-          html += `<div style="color: #c4b5fd; font-style: italic; margin-bottom: 12px; font-size: 0.95rem;">${block.text}</div>`;
+      panels.forEach((panelBlocks, i) => {
+        const el = document.getElementById(`rituals-panel-${i}`);
+        if (!el) return;
+        let html = '';
+        for (const block of panelBlocks) {
+          if (block.type === 'heading_3') {
+            html += `<div class="ritual-group"><h3>${block.text}</h3></div>`;
+          } else if (block.type === 'to_do') {
+            const checked = block.checked ? 'checked' : '';
+            html += `<div class="ritual-item ${checked}">
+              <div class="check"></div>
+              <span class="label">${block.text}</span>
+            </div>`;
+          } else if (block.type === 'callout') {
+            html += `<div style="color:#c4b5fd;font-style:italic;margin-bottom:10px;font-size:0.9rem;">${block.text}</div>`;
+          }
         }
-      }
-      container.innerHTML = html || '<div class="loading">No rituals found</div>';
+        el.innerHTML = html || '<div class="loading">No rituals</div>';
+      });
     }
 
     function renderAdventures(blocks) {
-      const container = document.getElementById('adventures');
+      const container = document.getElementById('adventures-panel-0');
       let html = '';
       let inCard = false;
-
       for (const block of blocks) {
         if (block.type === 'heading_2') {
           if (inCard) html += '</div>';
@@ -287,9 +629,9 @@
         } else if (block.type === 'callout' && inCard) {
           html += `<div class="desc">${block.text}</div>`;
         } else if (block.type === 'paragraph' && inCard) {
-          if (block.text.includes('DJing') || block.text.includes('✨')) {
+          if (block.text.includes('DJing') || block.text.includes('✨') || block.text.includes('🎶')) {
             html += `<div class="highlight">${block.text}</div>`;
-          } else if (block.text.includes('📅')) {
+          } else if (block.text.includes('📅') || block.text.includes('📍')) {
             html += `<div class="date">${block.text}</div>`;
           } else {
             html += `<div class="location">${block.text}</div>`;
@@ -297,9 +639,7 @@
         } else if (block.type === 'bulleted_list_item' && inCard) {
           html += `<div class="detail-item">• ${block.text}</div>`;
         } else if (block.type === 'heading_3') {
-          html += `<div style="color: #58a6ff; margin: 10px 0 6px; font-weight: 600;">${block.text}</div>`;
-        } else if (block.type === 'bulleted_list_item' && !inCard) {
-          html += `<div class="detail-item">📍 ${block.text}</div>`;
+          html += `<div style="color:#58a6ff;margin:8px 0 4px;font-weight:600;">${block.text}</div>`;
         }
       }
       if (inCard) html += '</div>';
@@ -307,25 +647,29 @@
     }
 
     function renderCheckins(blocks) {
-      const container = document.getElementById('checkins');
+      const container = document.getElementById('checkins-panel-0');
       let html = '';
       for (const block of blocks) {
         if (block.type === 'callout') {
-          html += `<div style="color: #34d399; font-style: italic; margin-bottom: 12px;">${block.text}</div>`;
+          html += `<div style="color:#34d399;font-style:italic;margin-bottom:10px;">${block.text}</div>`;
         } else if (block.type === 'heading_3') {
-          html += `<div style="color: #58a6ff; margin: 12px 0 6px; font-weight: 600;">${block.text}</div>`;
+          html += `<div style="color:#58a6ff;margin:10px 0 5px;font-weight:600;">${block.text}</div>`;
         } else if (block.type === 'bulleted_list_item') {
           html += `<div class="detail-item">📝 ${block.text}</div>`;
         } else if (block.type === 'toggle') {
-          html += `<div class="detail-item" style="color: #c4b5fd;">▸ ${block.text}</div>`;
+          html += `<div class="detail-item" style="color:#c4b5fd;">▸ ${block.text}</div>`;
         }
       }
       container.innerHTML = html || '<div class="loading">No check-ins yet</div>';
     }
 
-    // Load and auto-refresh
+    /* ═══ INIT ════════════════════════════════════════════════════ */
+    renderLoveNotes();
+    setupRotator('rituals', ['rituals-panel-0', 'rituals-panel-1'], 20000);   // rotate AM/PM every 20s
+    setupRotator('love',    ['love-panel-0', 'love-panel-1', 'love-panel-2'], 15000); // love notes every 15s
+
     loadData();
-    setInterval(loadData, 5 * 60 * 1000); // Refresh every 5 minutes
+    setInterval(loadData, 5 * 60 * 1000);
   </script>
 </body>
 </html>
